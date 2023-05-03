@@ -282,14 +282,16 @@ struct SetProperty : public Pass {
                         value = cur_value + "," + value;
                     }
 
+                    log("Setting parameter %s to value %s on cell %s \n", parameter_id.c_str(), value.c_str(), cell_obj.first.c_str());
                     if (parameter_id == ID(DRIVE)) {
-                        int value_int = std::stoi(value);
+                        int value_int = std::atoi(value.c_str());
+                        if(value_int == 0) {
+                            log_error("Invalid DRIVE value: %s \n", value.c_str());
+                        }
                         cell->setParam(parameter_id, RTLIL::Const(value_int));
-                        log("Setting DRIVE to %d \n", value_int);
                     } else {
                         cell->setParam(parameter_id, RTLIL::Const(value));
                     }
-                    log("Setting parameter %s to value %s on cell %s \n", parameter_id.c_str(), value.c_str(), cell_obj.first.c_str());
                 }
             }
         }

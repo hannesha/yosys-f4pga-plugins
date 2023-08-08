@@ -229,7 +229,8 @@ struct SetProperty : public Pass {
 
         std::string parameter(args.at(0));
         if (args.size() < 3 || args.at(2).size() == 0) {
-            log_error("set_property %s: Incorrect number of arguments.\n", parameter.c_str());
+            log("set_property %s: Incorrect number of arguments, Ignoring assignment!\n", parameter.c_str());
+            return;
         }
 
         std::string port_name(args.at(2));

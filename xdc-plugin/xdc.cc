@@ -40,7 +40,7 @@ PRIVATE_NAMESPACE_BEGIN
 static bool isInputPort(RTLIL::Wire *wire) { return wire->port_input; }
 static bool isOutputPort(RTLIL::Wire *wire) { return wire->port_output; }
 
-enum class SetPropertyOptions { INTERNAL_VREF, IOSTANDARD, SLEW, DRIVE, IN_TERM, IO_LOC_PAIRS };
+enum class SetPropertyOptions { INTERNAL_VREF, IOSTANDARD, SLEW, DRIVE, IN_TERM, IO_LOC_PAIRS, PULLTYPE };
 
 const std::unordered_map<std::string, SetPropertyOptions> set_property_options_map = {{"INTERNAL_VREF", SetPropertyOptions::INTERNAL_VREF},
                                                                                       {"IOSTANDARD", SetPropertyOptions::IOSTANDARD},
@@ -48,6 +48,7 @@ const std::unordered_map<std::string, SetPropertyOptions> set_property_options_m
                                                                                       {"DRIVE", SetPropertyOptions::DRIVE},
                                                                                       {"IN_TERM", SetPropertyOptions::IN_TERM},
                                                                                       {"LOC", SetPropertyOptions::IO_LOC_PAIRS},
+                                                                                      {"PULLTYPE", SetPropertyOptions::PULLTYPE},
                                                                                       {"PACKAGE_PIN", SetPropertyOptions::IO_LOC_PAIRS}};
 
 // Apart from the common I/OBUFs there is also the GTPE2_CHANNEL primitive which has a total
@@ -56,11 +57,11 @@ const std::unordered_map<std::string, SetPropertyOptions> set_property_options_m
 // corresponding PADs
 const std::unordered_map<std::string, std::vector<std::string>> supported_primitive_parameters = {
   {"OBUF", {"IO_LOC_PAIRS", "IOSTANDARD", "DRIVE", "SLEW", "IN_TERM"}},
-  {"OBUFT", {"IO_LOC_PAIRS", "IOSTANDARD", "DRIVE", "SLEW", "IN_TERM"}},
+  {"OBUFT", {"IO_LOC_PAIRS", "IOSTANDARD", "DRIVE", "SLEW", "IN_TERM", "PULLTYPE"}},
   {"OBUFDS", {"IO_LOC_PAIRS", "IOSTANDARD", "SLEW", "IN_TERM"}},
   {"OBUFTDS", {"IO_LOC_PAIRS", "IOSTANDARD", "SLEW", "IN_TERM"}},
-  {"IBUF", {"IO_LOC_PAIRS", "IOSTANDARD"}},
-  {"IOBUF", {"IO_LOC_PAIRS", "IOSTANDARD", "DRIVE", "SLEW", "IN_TERM"}},
+  {"IBUF", {"IO_LOC_PAIRS", "IOSTANDARD", "PULLTYPE"}},
+  {"IOBUF", {"IO_LOC_PAIRS", "IOSTANDARD", "DRIVE", "SLEW", "IN_TERM", "PULLTYPE"}},
   {"IOBUFDS", {"IO_LOC_PAIRS", "IOSTANDARD", "SLEW", "IN_TERM"}},
   {"IBUFDS_GTE2", {"IO_LOC_PAIRS"}},
   {"GTPE2_CHANNEL", {"IO_LOC_PAIRS"}}};
@@ -170,6 +171,7 @@ struct SetProperty : public Pass {
         case SetPropertyOptions::SLEW:
         case SetPropertyOptions::DRIVE:
         case SetPropertyOptions::IN_TERM:
+        case SetPropertyOptions::PULLTYPE:
             process_port_parameter(std::vector<std::string>(args.begin() + 1, args.end()), design);
             break;
         case SetPropertyOptions::IO_LOC_PAIRS: {
